@@ -13,10 +13,10 @@
 - Arithmetic तथा comparison operators
 - `if`, `else`, `while` और `return`
 - Built-in `print`
-- AST-based execution
+- AST से bytecode compilation और stack-based virtual machine execution
 - REPL और `check` command
 
-यह अभी **tree-walk execution prototype** है। Bytecode VM, ownership checker, LLVM AOT और JIT इसके बाद के milestones हैं।
+अब execution **bytecode compiler और stack-based VM** से होती है। Ownership checker, LLVM AOT और JIT इसके बाद के milestones हैं।
 
 ## Build
 
@@ -51,8 +51,8 @@ fn main() -> Int {
 ## Architecture roadmap
 
 ```text
-Source -> Lexer -> Parser -> AST -> Semantic Checks -> HIR/MIR
-       -> Bytecode VM (development) or LLVM AOT (production)
+Source -> Lexer -> Parser -> AST -> Semantic Checks -> Bytecode Compiler
+       -> Stack VM (development) or LLVM AOT (production)
        -> S+N++ Runtime
 ```
 

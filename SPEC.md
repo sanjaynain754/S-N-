@@ -27,4 +27,4 @@ snp repl
 
 ## Compilation roadmap
 
-Current implementation source को tokens, AST और evaluator में process करती है। अगली versions में AST से HIR/MIR, bytecode VM, ownership analysis और LLVM AOT backend जोड़े जाएँगे। हर चरण existing programs और diagnostics tests को preserve करेगा।
+Current implementation source को tokens और AST में process करके bytecode instructions में compile करती है और stack-based VM पर चलाती है। अगली versions में HIR/MIR, ownership analysis और LLVM AOT backend जोड़े जाएँगे। हर चरण existing programs और diagnostics tests को preserve करेगा।
