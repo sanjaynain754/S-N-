@@ -32,3 +32,7 @@ Current implementation source को tokens और AST में process कर�
 ## Ownership subset
 
 Version 1 का पहला ownership rule यह है कि `Int`, `Bool` और `Unit` copyable हैं, जबकि `String` और भविष्य के heap objects owned values हैं। किसी owned value को by-value function argument या दूसरे variable में देने पर उसका ownership move होता है। Moved variable को दोबारा उपयोग करने पर compiler `use of moved value` diagnostic देता है। `print` को read-only use माना गया है। Borrow syntax और `.clone()` API अगले milestone में formalize होंगे।
+
+## Mutable references
+
+`&mut T` syntax अब parser और type system में मान्य है। यह reference type ownership move नहीं करता और future mutation operations के लिए exclusive access marker है। इस milestone में `&mut` की syntax, type compatibility और owner preservation लागू हैं; reference के माध्यम से field/index mutation तथा simultaneous-borrow conflict diagnostics अगले ownership milestone में पूर्ण किए जाएँगे।
