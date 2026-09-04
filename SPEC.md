@@ -28,3 +28,7 @@ snp repl
 ## Compilation roadmap
 
 Current implementation source को tokens और AST में process करके bytecode instructions में compile करती है और stack-based VM पर चलाती है। अगली versions में HIR/MIR, ownership analysis और LLVM AOT backend जोड़े जाएँगे। हर चरण existing programs और diagnostics tests को preserve करेगा।
+
+## Ownership subset
+
+Version 1 का पहला ownership rule यह है कि `Int`, `Bool` और `Unit` copyable हैं, जबकि `String` और भविष्य के heap objects owned values हैं। किसी owned value को by-value function argument या दूसरे variable में देने पर उसका ownership move होता है। Moved variable को दोबारा उपयोग करने पर compiler `use of moved value` diagnostic देता है। `print` को read-only use माना गया है। Borrow syntax और `.clone()` API अगले milestone में formalize होंगे।
