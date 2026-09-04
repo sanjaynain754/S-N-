@@ -1,0 +1,1 @@
+fn add(a: Int, b: Int) -> Int { return a + b; } fn main() -> Int { print(add(20, 22)); return 0; }

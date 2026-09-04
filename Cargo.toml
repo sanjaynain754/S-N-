@@ -1,0 +1,8 @@
+[package]
+name = "splusnpp"
+version = "0.1.0"
+edition = "2021"
+description = "The S+N++ programming language compiler and runtime"
+license = "MIT"
+
+[dependencies]
