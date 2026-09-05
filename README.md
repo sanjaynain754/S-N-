@@ -1,24 +1,33 @@
 # S+N++
 
-**S+N++** एक readable, statically-oriented systems language का शुरुआती compiler/runtime prototype है। इसका design लक्ष्य सरल syntax, स्पष्ट diagnostics और आगे चलकर safe memory तथा native performance है।
+**S+N++** एक readable, statically-oriented systems language का Rust-based compiler/runtime project है। इसका लक्ष्य सरल syntax, स्पष्ट diagnostics, safe ownership और practical concurrency है।
 
-## Current Version 0.1
+## Version 1.0 milestone
 
-इस repository में Rust implementation निम्न सुविधाएँ देती है:
+इस milestone में repository का executable अब thin binary entrypoint और testable library crate में विभाजित है। Current implementation में lexer, parser, AST, type checker, definite-assignment analysis, ownership/move analysis, bytecode compiler, stack VM और CLI workflow मौजूद हैं।
 
-- Lexer और tokenization
-- Function declarations और calls
-- Integer, string और boolean values
-- Variable declaration (`let x = ...`)
-- Arithmetic तथा comparison operators
-- `if`, `else`, `while` और `return`
-- Built-in `print`
-- AST से bytecode compilation और stack-based virtual machine execution
-- REPL और `check` command
+Language features में functions, typed parameters, `Int`, `String`, `Bool`, `Unit`, `Channel` और `Thread` values, arithmetic/comparison operators, `if`, `else`, `while`, `return`, lexical block scope, shadowing, branch-sensitive initialization, recursive calls, immutable/mutable reference syntax, ownership moves, `spawn`, `join`, `channel`, `send` और `receive` शामिल हैं।
 
-अब execution **bytecode compiler और stack-based VM** से होती है। Ownership checker, LLVM AOT और JIT इसके बाद के milestones हैं।
+## Worker-channel example
 
-## Build
+Workers को अब channel handles और अन्य values के साथ launch किया जा सकता है:
+
+```snp
+fn worker(ch: Channel) {
+    send(ch, 99);
+}
+
+fn main() {
+    let ch = channel();
+    let task = spawn("worker", ch);
+    join(task);
+    print(receive(ch));
+}
+```
+
+`spawn("worker", arguments...)` named function को अलग OS thread पर चलाता है और बाकी arguments forward करता है। `join(handle)` completion की प्रतीक्षा करता है। `channel()` synchronized message channel बनाता है।
+
+## Build and test
 
 Rust और Cargo install होने के बाद:
 
@@ -35,25 +44,19 @@ cargo run -- check examples/hello.snp
 cargo run -- repl
 ```
 
-Example:
-
-```snp
-fn add(a: Int, b: Int) -> Int {
-    return a + b;
-}
-
-fn main() -> Int {
-    print(add(20, 22));
-    return 0;
-}
-```
-
-## Architecture roadmap
+## Architecture
 
 ```text
-Source -> Lexer -> Parser -> AST -> Semantic Checks -> Bytecode Compiler
-       -> Stack VM (development) or LLVM AOT (production)
-       -> S+N++ Runtime
+S+N++ source
+    -> lexer and tokens
+    -> recursive-descent parser
+    -> AST
+    -> type / definite-assignment / ownership checks
+    -> bytecode compiler
+    -> stack-based VM
+    -> runtime services: threads and synchronized channels
 ```
 
-विस्तृत Version 1 scope के लिए [SPEC.md](SPEC.md) देखें।
+The crate is currently organized as a testable library plus a thin binary entrypoint. The next major production milestones are explicit closure capture, richer diagnostics, standard library modules, serialized bytecode and an LLVM/native backend.
+
+विस्तृत language rules और milestone details के लिए [SPEC.md](SPEC.md) देखें।

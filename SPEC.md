@@ -60,3 +60,22 @@ Typed declarations जैसे `let count: Int;` बिना initializer क�
 `channel()` एक synchronized message channel बनाता है। `send(ch, value)` value को channel में रखता है और `receive(ch)` अगली value आने तक सुरक्षित रूप से wait करता है। Channel handles copyable runtime capabilities हैं; payload ownership rules के अनुसार move हो सकती है। इस milestone में channel round-trip और runtime synchronization मौजूद है। Named zero-argument `spawn` API की सीमा के कारण worker को channel argument देना अभी अगला API refinement है।
 
 S+N++ में arbitrary implicit closures अभी enabled नहीं हैं। जब closure syntax जोड़ी जाएगी, capture mode explicit होगा—`move` capture या immutable borrow capture—ताकि hidden shared mutable state न बने।
+
+## Version 1.0 architecture milestone
+
+The executable now uses a thin binary entrypoint and a library crate, allowing the compiler/runtime to be tested independently of the CLI. The runtime exposes typed `Channel` and `Thread` handles. `spawn("worker", argument...)` launches a named function on an OS thread and forwards the remaining values as function arguments; `join(handle)` waits for completion.
+
+A worker can therefore communicate through a channel:
+
+```snp
+fn worker(ch: Channel) {
+    send(ch, 99);
+}
+
+fn main() {
+    let ch = channel();
+    let task = spawn("worker", ch);
+    join(task);
+    print(receive(ch));
+}
+```
