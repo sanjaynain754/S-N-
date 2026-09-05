@@ -54,3 +54,9 @@ Typed declarations जैसे `let count: Int;` बिना initializer क�
 ## Advanced scope safety
 
 हर function call को अपना local environment और call frame मिलता है, इसलिए recursive calls में parameters और locals एक-दूसरे को overwrite नहीं करते। Ownership analysis branches को conservatively merge करता है: यदि किसी branch में owned variable move हो गया, तो join point पर variable को moved माना जाता है। इससे unsafe path छिप नहीं सकता। Closure capture और synchronized shared state अभी design phase में हैं; Version 1 में threads केवल named zero-argument functions को isolated environments में चलाते हैं।
+
+## Synchronized channels
+
+`channel()` एक synchronized message channel बनाता है। `send(ch, value)` value को channel में रखता है और `receive(ch)` अगली value आने तक सुरक्षित रूप से wait करता है। Channel handles copyable runtime capabilities हैं; payload ownership rules के अनुसार move हो सकती है। इस milestone में channel round-trip और runtime synchronization मौजूद है। Named zero-argument `spawn` API की सीमा के कारण worker को channel argument देना अभी अगला API refinement है।
+
+S+N++ में arbitrary implicit closures अभी enabled नहीं हैं। जब closure syntax जोड़ी जाएगी, capture mode explicit होगा—`move` capture या immutable borrow capture—ताकि hidden shared mutable state न बने।
