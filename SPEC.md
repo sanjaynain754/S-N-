@@ -50,3 +50,7 @@ Version 1 में function और variable scoping के लिए निम�
 Braced `if` और `while` bodies अब child lexical environments में execute होते हैं। Inner `let` declaration outer variable को shadow कर सकती है, लेकिन block समाप्त होने पर shadowed value बाहर leak नहीं होती। Existing outer variables पर assignment block के बाद visible रहता है।
 
 Typed declarations जैसे `let count: Int;` बिना initializer के allowed हैं, लेकिन उनका उपयोग तब तक नहीं किया जा सकता जब तक सभी reachable control-flow paths पर assignment न हो। An `if` assignment को definite तभी माना जाता है जब `then` और `else` दोनों branches assign करें। Loop body में हुआ assignment loop के बाद definite नहीं माना जाता, क्योंकि loop zero बार भी चल सकता है।
+
+## Advanced scope safety
+
+हर function call को अपना local environment और call frame मिलता है, इसलिए recursive calls में parameters और locals एक-दूसरे को overwrite नहीं करते। Ownership analysis branches को conservatively merge करता है: यदि किसी branch में owned variable move हो गया, तो join point पर variable को moved माना जाता है। इससे unsafe path छिप नहीं सकता। Closure capture और synchronized shared state अभी design phase में हैं; Version 1 में threads केवल named zero-argument functions को isolated environments में चलाते हैं।
