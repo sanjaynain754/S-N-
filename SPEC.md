@@ -44,3 +44,9 @@ S+N++ अब real OS threads के लिए दो built-in operations दे�
 ### Scope test matrix
 
 Version 1 में function और variable scoping के लिए निम्न cases cover किए गए हैं: function-local variable isolation, function parameter availability, undefined variable rejection, assignment केवल पहले declared variable पर, nested conditional/loop visibility, function return type checking, duplicate function names, unknown function calls, argument count/type validation, moved-variable visibility और borrowed-owner validity। अभी explicit lexical shadowing policy, branch-join definite assignment, loop-carried initialization, closure capture, recursive stack isolation और shared-state synchronization tests बाकी हैं।
+
+## Lexical blocks and definite assignment
+
+Braced `if` और `while` bodies अब child lexical environments में execute होते हैं। Inner `let` declaration outer variable को shadow कर सकती है, लेकिन block समाप्त होने पर shadowed value बाहर leak नहीं होती। Existing outer variables पर assignment block के बाद visible रहता है।
+
+Typed declarations जैसे `let count: Int;` बिना initializer के allowed हैं, लेकिन उनका उपयोग तब तक नहीं किया जा सकता जब तक सभी reachable control-flow paths पर assignment न हो। An `if` assignment को definite तभी माना जाता है जब `then` और `else` दोनों branches assign करें। Loop body में हुआ assignment loop के बाद definite नहीं माना जाता, क्योंकि loop zero बार भी चल सकता है।
