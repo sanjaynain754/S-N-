@@ -36,3 +36,11 @@ Version 1 का पहला ownership rule यह है कि `Int`, `Bool` 
 ## Mutable references
 
 `&mut T` syntax अब parser और type system में मान्य है। यह reference type ownership move नहीं करता और future mutation operations के लिए exclusive access marker है। इस milestone में `&mut` की syntax, type compatibility और owner preservation लागू हैं; reference के माध्यम से field/index mutation तथा simultaneous-borrow conflict diagnostics अगले ownership milestone में पूर्ण किए जाएँगे।
+
+## Concurrency milestone
+
+S+N++ अब real OS threads के लिए दो built-in operations देता है। `spawn("function_name")` zero-argument function को background thread में चलाकर a thread handle लौटाता है। `join(handle)` उस thread के समाप्त होने की प्रतीक्षा करता है और उसका result लौटाता है। Thread functions अलग VM instance और अलग local environment में चलते हैं; सामान्य local variables अपने-आप shared नहीं होते। Shared mutable state और channels को सुरक्षित रूप से expose करना अगली concurrency milestone का विषय है।
+
+### Scope test matrix
+
+Version 1 में function और variable scoping के लिए निम्न cases cover किए गए हैं: function-local variable isolation, function parameter availability, undefined variable rejection, assignment केवल पहले declared variable पर, nested conditional/loop visibility, function return type checking, duplicate function names, unknown function calls, argument count/type validation, moved-variable visibility और borrowed-owner validity। अभी explicit lexical shadowing policy, branch-join definite assignment, loop-carried initialization, closure capture, recursive stack isolation और shared-state synchronization tests बाकी हैं।
