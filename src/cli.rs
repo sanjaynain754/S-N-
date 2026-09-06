@@ -25,8 +25,8 @@ pub fn run() {
             Ok(()) => println!("ok: valid S+N++ program"),
             Err(error) => eprintln!("{}", diagnostic(&source, &error)),
         },
-        "build" => match crate::parser::parse(&source).and_then(|functions| crate::typecheck::check(&functions)) {
-            Ok(()) => println!("built: {source_path}"),
+        "build" => match crate::build_artifact(&source) {
+            Ok(bytes) => { let artifact = format!("{source_path}.snpbc"); match fs::write(&artifact, bytes) { Ok(()) => println!("built: {artifact}"), Err(error) => eprintln!("cannot write {artifact}: {error}") } }
             Err(error) => eprintln!("{}", diagnostic(&source, &error)),
         },
         "run" => match crate::execute(&source) {

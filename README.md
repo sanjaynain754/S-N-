@@ -41,6 +41,7 @@ cargo build --release
 ```bash
 cargo run -- run examples/hello.snp
 cargo run -- check examples/hello.snp
+cargo run -- build examples/hello.snp
 cargo run -- repl
 ```
 
@@ -57,6 +58,6 @@ S+N++ source
     -> runtime services: threads and synchronized channels
 ```
 
-The crate is currently organized as a testable library plus a thin binary entrypoint. The next major production milestones are explicit closure capture, richer diagnostics, standard library modules, serialized bytecode and an LLVM/native backend.
+The crate is organized as a testable library plus a thin binary entrypoint. The AST, lexer, parser, type checker, runtime and CLI now have dedicated module implementations. `snp build file.snp` validates and emits a `.snpbc` bytecode artifact with the `SNPBC1` format marker; `snp check` performs frontend validation, while `snp run` executes through the bytecode VM. Future production milestones include loading serialized artifacts directly, explicit closure capture, richer diagnostics, standard library modules and an LLVM/native backend.
 
 विस्तृत language rules और milestone details के लिए [SPEC.md](SPEC.md) देखें।

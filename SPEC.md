@@ -79,3 +79,7 @@ fn main() {
     print(receive(ch));
 }
 ```
+
+## Core Upgrade: module ownership and artifacts
+
+The compiler implementation is now separated into dedicated AST, lexer, parser, typecheck, runtime and CLI modules. The runtime exposes a validated bytecode artifact builder. `build <source.snp>` emits `<source.snp>.snpbc` beginning with the `SNPBC1` format marker, while `check` runs parsing and semantic validation without execution. The current artifact is a compiler output/debug representation; direct artifact loading will be added before it is treated as a stable distribution format.
