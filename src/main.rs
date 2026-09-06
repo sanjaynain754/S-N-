@@ -1,3 +1,3 @@
 fn main() {
-    splusnpp::cli_main();
+    splusnpp::cli::run();
 }
