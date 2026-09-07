@@ -94,3 +94,9 @@ import std.concurrency;
 ```
 
 Module paths are dotted identifiers and may end with an optional semicolon. The current resolver recognizes `std.io`, `std.string`, `std.collections`, and `std.concurrency`. The first three establish the initial library namespaces; `std.concurrency` documents the existing `channel`, `send`, `receive`, `spawn`, and `join` runtime surface. Unknown modules are rejected before type checking and execution. The registry is deliberately explicit so a future package manager can add versioned external modules without changing the language grammar.
+
+## `std.string` and `std.collections` APIs
+
+The first concrete standard-library APIs are available after importing the corresponding modules. String helpers are pure operations: `str_len(String) -> Int`, `str_contains(String, String) -> Bool`, `str_upper(String) -> String`, `str_lower(String) -> String`, `str_trim(String) -> String`, and `str_concat(String, String) -> String`.
+
+Collections use an immutable-style list surface in this milestone. `list(value...) -> List` constructs a list, `list_push(List, value) -> List` returns a new list with one appended value, `list_len(List) -> Int` returns its length, and `list_get(List, Int)` returns the selected value or a runtime bounds error. List values are non-copyable for ownership analysis, while these standard-library operations borrow their input and preserve the original list.

@@ -1,0 +1,11 @@
+import std.string;
+import std.collections;
+
+fn main() -> Int {
+    let values = list(1, 2);
+    let extended = list_push(values, 3);
+    print(str_upper("s+n++"));
+    print(str_contains("standard library", "library"));
+    print(list_get(extended, 1));
+    return list_len(extended);
+}

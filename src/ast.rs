@@ -10,6 +10,7 @@ pub enum Type {
     Unit,
     Channel,
     Thread,
+    List,
     Ref(Box<Type>),
     MutRef(Box<Type>),
     Unknown,
@@ -53,6 +54,7 @@ pub enum Value {
     Unit,
     Thread(usize),
     Channel(usize),
+    List(Vec<Value>),
 }
 
 #[derive(Debug, Clone)]

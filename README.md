@@ -45,6 +45,8 @@ cargo run -- build examples/hello.snp
 cargo run -- repl
 cargo run -- run examples/stdlib_import.snp
 cargo run -- check examples/stdlib_import.snp
+cargo run -- run examples/string_collections.snp
+cargo run -- check examples/string_collections.snp
 ```
 
 ## Architecture
@@ -60,6 +62,6 @@ S+N++ source
     -> runtime services: threads and synchronized channels
 ```
 
-The crate is organized as a testable library plus a thin binary entrypoint. Source files may begin with imports such as `import std.io;` and `import std.concurrency;`. The resolver currently recognizes `std.io`, `std.string`, `std.collections`, and `std.concurrency`; this registry is the contract that the future package manager will extend. The AST, lexer, parser, type checker, runtime and CLI now have dedicated module implementations. `snp build file.snp` validates and emits a `.snpbc` bytecode artifact with the `SNPBC1` format marker; `snp check` performs frontend validation, while `snp run` executes through the bytecode VM. Future production milestones include loading serialized artifacts directly, explicit closure capture, richer diagnostics, standard library modules and an LLVM/native backend.
+The crate is organized as a testable library plus a thin binary entrypoint. Source files may begin with imports such as `import std.io;` and `import std.concurrency;`. The resolver currently recognizes `std.io`, `std.string`, `std.collections`, and `std.concurrency`; this registry is the contract that the future package manager will extend. `std.string` provides `str_len`, `str_contains`, `str_upper`, `str_lower`, `str_trim`, and `str_concat`. `std.collections` provides immutable-style `list`, `list_push`, `list_len`, and `list_get` operations. The AST, lexer, parser, type checker, runtime and CLI now have dedicated module implementations. `snp build file.snp` validates and emits a `.snpbc` bytecode artifact with the `SNPBC1` format marker; `snp check` performs frontend validation, while `snp run` executes through the bytecode VM. Future production milestones include loading serialized artifacts directly, explicit closure capture, richer diagnostics, standard library modules and an LLVM/native backend.
 
 विस्तृत language rules और milestone details के लिए [SPEC.md](SPEC.md) देखें।
