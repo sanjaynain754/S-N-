@@ -61,6 +61,7 @@ fn show(value: &crate::Value) -> String {
         crate::Value::Thread(id) => format!("thread({id})"),
         crate::Value::Channel(id) => format!("channel({id})"),
         crate::Value::List(items) => format!("list(len={})", items.len()),
+        crate::Value::Map(items) => format!("map(len={})", items.len()),
     }
 }
 

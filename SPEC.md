@@ -100,3 +100,9 @@ Module paths are dotted identifiers and may end with an optional semicolon. The 
 The first concrete standard-library APIs are available after importing the corresponding modules. String helpers are pure operations: `str_len(String) -> Int`, `str_contains(String, String) -> Bool`, `str_upper(String) -> String`, `str_lower(String) -> String`, `str_trim(String) -> String`, and `str_concat(String, String) -> String`.
 
 Collections use an immutable-style list surface in this milestone. `list(value...) -> List` constructs a list, `list_push(List, value) -> List` returns a new list with one appended value, `list_len(List) -> Int` returns its length, and `list_get(List, Int)` returns the selected value or a runtime bounds error. List values are non-copyable for ownership analysis, while these standard-library operations borrow their input and preserve the original list.
+
+## Advanced Collections
+
+`std.collections` now supports immutable-style list updates and maps. `list_set(List, Int, value) -> List` returns a copy with the selected element replaced and rejects negative or out-of-bounds indices. `list_concat(List, List) -> List` returns a new list containing both inputs in order.
+
+`map(String, value...) -> Map` constructs a map from alternating string keys and values. `map_set(Map, String, value) -> Map` returns a copy with a key inserted or replaced. `map_get(Map, String)` returns the associated value and reports `map key not found` when absent. `map_has(Map, String) -> Bool` checks key presence. Map keys are currently strings, and all map updates preserve the original map.

@@ -1,0 +1,14 @@
+import std.collections;
+
+fn main() -> Int {
+    let base = list(1, 2);
+    let changed = list_set(base, 0, 9);
+    let combined = list_concat(base, changed);
+    let metadata = map("language", "S+N++", "version", 1);
+    let updated = map_set(metadata, "status", "active");
+
+    print(list_get(combined, 0));
+    print(map_get(updated, "language"));
+    print(map_has(updated, "status"));
+    return list_len(combined);
+}

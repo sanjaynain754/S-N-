@@ -12,7 +12,7 @@ pub fn registry() -> BTreeMap<&'static str, ModuleSpec> {
     BTreeMap::from([
         ("std.io", ModuleSpec { name: "std.io", functions: &["print"] }),
         ("std.string", ModuleSpec { name: "std.string", functions: &["str_len", "str_contains", "str_upper", "str_lower", "str_trim", "str_concat"] }),
-        ("std.collections", ModuleSpec { name: "std.collections", functions: &["list", "list_push", "list_len", "list_get"] }),
+        ("std.collections", ModuleSpec { name: "std.collections", functions: &["list", "list_push", "list_len", "list_get", "list_set", "list_concat", "map", "map_set", "map_get", "map_has"] }),
         ("std.concurrency", ModuleSpec { name: "std.concurrency", functions: &["channel", "send", "receive", "spawn", "join"] }),
     ])
 }

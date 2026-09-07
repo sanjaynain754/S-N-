@@ -1,6 +1,7 @@
 //! S+N++ abstract syntax tree and language data models.
 
 use crate::lexer::Token;
+use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Type {
@@ -11,6 +12,7 @@ pub enum Type {
     Channel,
     Thread,
     List,
+    Map,
     Ref(Box<Type>),
     MutRef(Box<Type>),
     Unknown,
@@ -55,6 +57,7 @@ pub enum Value {
     Thread(usize),
     Channel(usize),
     List(Vec<Value>),
+    Map(BTreeMap<String, Value>),
 }
 
 #[derive(Debug, Clone)]

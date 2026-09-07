@@ -4,16 +4,16 @@ use std::collections::HashMap;
 use crate::ast::{Expr, Function, Stmt, Type};
 use crate::lexer::Token;
 
-fn type_name(t: &Type) -> &'static str { match t { Type::Int => "Int", Type::Str => "String", Type::Bool => "Bool", Type::Unit => "Unit", Type::Channel => "Channel", Type::Thread => "Thread", Type::List => "List", Type::Ref(_) => "&reference", Type::MutRef(_) => "&mut reference", Type::Unknown => "Unknown" } }
+fn type_name(t: &Type) -> &'static str { match t { Type::Int => "Int", Type::Str => "String", Type::Bool => "Bool", Type::Unit => "Unit", Type::Channel => "Channel", Type::Thread => "Thread", Type::List => "List", Type::Map => "Map", Type::Ref(_) => "&reference", Type::MutRef(_) => "&mut reference", Type::Unknown => "Unknown" } }
 
 fn expr_type(x: &Expr, env: &HashMap<String, Type>, sigs: &HashMap<String, (Vec<Type>, Type)>) -> Result<Type, String> {
     match x {
         Expr::Int(_) => Ok(Type::Int), Expr::Str(_) => Ok(Type::Str), Expr::Bool(_) => Ok(Type::Bool),
         Expr::Var(n) => env.get(n).cloned().ok_or_else(|| format!("undefined variable `{n}`")),
         Expr::Call(n, args) => {
-            if matches!(n.as_str(), "print"|"spawn"|"join"|"channel"|"send"|"receive"|"str_len"|"str_contains"|"str_upper"|"str_lower"|"str_trim"|"str_concat"|"list"|"list_push"|"list_len"|"list_get") {
+            if matches!(n.as_str(), "print"|"spawn"|"join"|"channel"|"send"|"receive"|"str_len"|"str_contains"|"str_upper"|"str_lower"|"str_trim"|"str_concat"|"list"|"list_push"|"list_len"|"list_get"|"list_set"|"list_concat"|"map"|"map_set"|"map_get"|"map_has") {
                 for arg in args { expr_type(arg, env, sigs)?; }
-                return Ok(match n.as_str() { "spawn" => Type::Thread, "channel" => Type::Channel, "receive"|"list_get" => Type::Unknown, "str_len"|"list_len" => Type::Int, "str_contains" => Type::Bool, "str_upper"|"str_lower"|"str_trim"|"str_concat" => Type::Str, "list"|"list_push" => Type::List, _ => Type::Unit });
+                return Ok(match n.as_str() { "spawn" => Type::Thread, "channel" => Type::Channel, "receive"|"list_get"|"map_get" => Type::Unknown, "str_len"|"list_len" => Type::Int, "str_contains"|"map_has" => Type::Bool, "str_upper"|"str_lower"|"str_trim"|"str_concat" => Type::Str, "list"|"list_push"|"list_set"|"list_concat" => Type::List, "map"|"map_set" => Type::Map, _ => Type::Unit });
             }
             let (params, ret) = sigs.get(n).ok_or_else(|| format!("unknown function `{n}`"))?;
             if args.len() != params.len() { return Err(format!("function `{n}` expects {} argument(s), got {}", params.len(), args.len())); }
@@ -54,7 +54,7 @@ fn moved_var(expr: &Expr) -> Option<String> { if let Expr::Var(name) = expr { So
 fn ownership_expr(x: &Expr, env: &HashMap<String, Type>, moved: &mut HashMap<String, bool>, move_value: bool, sigs: &HashMap<String, (Vec<Type>, Type)>) -> Result<(), String> { match x {
     Expr::Var(name) => { if *moved.get(name).unwrap_or(&false) { return Err(format!("use of moved value `{name}`; use `.clone()` before moving it again")); } if move_value && !copyable(env.get(name).unwrap_or(&Type::Unknown)) { moved.insert(name.clone(), true); } }
     Expr::Binary(a, _, b) => { ownership_expr(a, env, moved, false, sigs)?; ownership_expr(b, env, moved, false, sigs)?; }
-    Expr::Call(name, args) => { for arg in args { let borrow = if matches!(name.as_str(), "print"|"spawn"|"str_len"|"str_contains"|"str_upper"|"str_lower"|"str_trim"|"str_concat"|"list"|"list_push"|"list_len"|"list_get") { true } else { sigs.get(name).and_then(|(params, _)| params.first()).map(|ty| matches!(ty, Type::Ref(_) | Type::MutRef(_))).unwrap_or(false) }; ownership_expr(arg, env, moved, !borrow, sigs)?; } }
+    Expr::Call(name, args) => { for arg in args { let borrow = if matches!(name.as_str(), "print"|"spawn"|"str_len"|"str_contains"|"str_upper"|"str_lower"|"str_trim"|"str_concat"|"list"|"list_push"|"list_len"|"list_get"|"list_set"|"list_concat"|"map"|"map_set"|"map_get"|"map_has") { true } else { sigs.get(name).and_then(|(params, _)| params.first()).map(|ty| matches!(ty, Type::Ref(_) | Type::MutRef(_))).unwrap_or(false) }; ownership_expr(arg, env, moved, !borrow, sigs)?; } }
     _ => {}
 } Ok(()) }
 fn ownership_stmts(xs: &[Stmt], env: &mut HashMap<String, Type>, moved: &mut HashMap<String, bool>, sigs: &HashMap<String, (Vec<Type>, Type)>) -> Result<(), String> { for statement in xs { match statement {
