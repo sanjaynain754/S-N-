@@ -2,11 +2,11 @@
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Token {
-    Fn, Let, If, Else, While, Return, True, False, Mut,
+    Fn, Let, If, Else, While, Return, True, False, Mut, Import,
     Ident(String), Int(i64), Str(String), Amp,
     Plus, Minus, Star, Slash, Eq, EqEq, BangEq,
     Lt, Lte, Gt, Gte, LParen, RParen, LBrace, RBrace,
-    Comma, Colon, Arrow, Semi, Eof,
+    Comma, Colon, Dot, Arrow, Semi, Eof,
 }
 
 pub fn lex(src: &str) -> Result<Vec<Token>, String> {
@@ -31,7 +31,7 @@ pub fn lex(src: &str) -> Result<Vec<Token>, String> {
             out.push(match word.as_str() {
                 "fn" => Token::Fn, "let" => Token::Let, "if" => Token::If,
                 "else" => Token::Else, "while" => Token::While, "return" => Token::Return,
-                "true" => Token::True, "false" => Token::False, "mut" => Token::Mut,
+                "true" => Token::True, "false" => Token::False, "mut" => Token::Mut, "import" => Token::Import,
                 _ => Token::Ident(word),
             });
             continue;
@@ -48,7 +48,7 @@ pub fn lex(src: &str) -> Result<Vec<Token>, String> {
         let token = match c {
             '&' => Token::Amp, '+' => Token::Plus, '*' => Token::Star, '/' => Token::Slash,
             '(' => Token::LParen, ')' => Token::RParen, '{' => Token::LBrace, '}' => Token::RBrace,
-            ',' => Token::Comma, ':' => Token::Colon, ';' => Token::Semi,
+            ',' => Token::Comma, ':' => Token::Colon, '.' => Token::Dot, ';' => Token::Semi,
             '-' => { if i + 1 < chars.len() && chars[i + 1] == '>' { i += 1; Token::Arrow } else { Token::Minus } }
             '=' => { if i + 1 < chars.len() && chars[i + 1] == '=' { i += 1; Token::EqEq } else { Token::Eq } }
             '!' => { if i + 1 < chars.len() && chars[i + 1] == '=' { i += 1; Token::BangEq } else { return Err("unexpected !".into()); } }

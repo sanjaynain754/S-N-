@@ -83,3 +83,14 @@ fn main() {
 ## Core Upgrade: module ownership and artifacts
 
 The compiler implementation is now separated into dedicated AST, lexer, parser, typecheck, runtime and CLI modules. The runtime exposes a validated bytecode artifact builder. `build <source.snp>` emits `<source.snp>.snpbc` beginning with the `SNPBC1` format marker, while `check` runs parsing and semantic validation without execution. The current artifact is a compiler output/debug representation; direct artifact loading will be added before it is treated as a stable distribution format.
+
+## Standard Library Foundation
+
+S+N++ source files may declare standard-library imports before function declarations:
+
+```snp
+import std.io;
+import std.concurrency;
+```
+
+Module paths are dotted identifiers and may end with an optional semicolon. The current resolver recognizes `std.io`, `std.string`, `std.collections`, and `std.concurrency`. The first three establish the initial library namespaces; `std.concurrency` documents the existing `channel`, `send`, `receive`, `spawn`, and `join` runtime surface. Unknown modules are rejected before type checking and execution. The registry is deliberately explicit so a future package manager can add versioned external modules without changing the language grammar.

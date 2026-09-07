@@ -21,7 +21,7 @@ pub fn run() {
         Err(error) => { eprintln!("cannot read {source_path}: {error}"); return; }
     };
     match args[1].as_str() {
-        "check" => match crate::parser::parse(&source).and_then(|functions| crate::typecheck::check(&functions)) {
+        "check" => match crate::parser::parse_program(&source).and_then(|program| { crate::stdlib::resolve(&program.imports)?; crate::typecheck::check(&program.functions) }) {
             Ok(()) => println!("ok: valid S+N++ program"),
             Err(error) => eprintln!("{}", diagnostic(&source, &error)),
         },

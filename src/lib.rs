@@ -6,6 +6,7 @@ pub mod cli;
 pub mod lexer;
 pub mod parser;
 pub mod runtime;
+pub mod stdlib;
 pub mod typecheck;
 use std::collections::HashMap as Map;
 
@@ -17,7 +18,7 @@ pub(crate) fn channel_table() -> &'static Mutex<Map<usize, (Sender<Value>, Recei
 pub(crate) fn thread_table() -> &'static Mutex<Map<usize, JoinHandle<Value>>> { THREADS.get_or_init(|| Mutex::new(Map::new())) }
 
 
-pub use ast::{Expr, Function, Stmt, Type, Value};
+pub use ast::{Expr, Function, Program, Stmt, Type, Value};
 pub use lexer::{lex, Token};
 pub use runtime::{build_artifact, execute, BytecodeVm};
 

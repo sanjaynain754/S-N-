@@ -1,9 +1,13 @@
 //! S+N++ recursive-descent parser.
 
-use crate::ast::{Expr, Function, Stmt, Type};
+use crate::ast::{Expr, Function, Program, Stmt, Type};
 use crate::lexer::Token;
 
 pub fn parse(source: &str) -> Result<Vec<Function>, String> {
+    Ok(parse_program(source)?.functions)
+}
+
+pub fn parse_program(source: &str) -> Result<Program, String> {
     let tokens = crate::lexer::lex(source)?;
     let mut parser = Parser::new(tokens);
     parser.program()
@@ -19,10 +23,23 @@ impl Parser {
         if *self.current() == wanted { self.bump(); Ok(()) }
         else { Err(format!("expected {:?}, got {:?}", wanted, self.current())) }
     }
-    fn program(&mut self) -> Result<Vec<Function>, String> {
+    fn program(&mut self) -> Result<Program, String> {
+        let mut imports = Vec::new();
+        while *self.current() == Token::Import { imports.push(self.import_path()?); }
         let mut functions = Vec::new();
         while *self.current() != Token::Eof { functions.push(self.function()?); }
-        Ok(functions)
+        Ok(Program { imports, functions })
+    }
+    fn import_path(&mut self) -> Result<String, String> {
+        self.eat(Token::Import)?;
+        let mut parts = Vec::new();
+        match self.bump() { Token::Ident(name) => parts.push(name), token => return Err(format!("expected module name after import, got {:?}", token)) }
+        while *self.current() == Token::Dot {
+            self.bump();
+            match self.bump() { Token::Ident(name) => parts.push(name), token => return Err(format!("expected module name after `.`, got {:?}", token)) }
+        }
+        if *self.current() == Token::Semi { self.bump(); }
+        Ok(parts.join("."))
     }
     fn parse_type(&mut self) -> Result<Type, String> {
         if *self.current() == Token::Amp {

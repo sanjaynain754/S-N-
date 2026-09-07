@@ -1,0 +1,13 @@
+import std.io;
+import std.concurrency;
+
+fn worker(ch: Channel) {
+    send(ch, 7);
+}
+
+fn main() {
+    let ch = channel();
+    let task = spawn("worker", ch);
+    join(task);
+    print(receive(ch));
+}

@@ -54,3 +54,9 @@ pub enum Value {
     Thread(usize),
     Channel(usize),
 }
+
+#[derive(Debug, Clone)]
+pub struct Program {
+    pub imports: Vec<String>,
+    pub functions: Vec<Function>,
+}
