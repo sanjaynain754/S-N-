@@ -97,4 +97,13 @@ util = { path = "../util", version = "^0.1.0" }
 
 S+N++ currently supports exact versions such as `0.1.2`, caret ranges such as `^0.1.0`, tilde ranges such as `~0.1.2`, lower bounds such as `>=0.1.0`, and `*`. Run `snp lock path/to/snp.toml` to resolve local dependencies and generate `snp.lock`. `snp package-check path/to/snp.toml` validates the lockfile when it exists, including the version constraint, dependency path and manifest checksum.
 
-The lockfile is deterministic and records each resolved package, exact version, source path and checksum. Remote registry downloads, transitive dependency solving and cryptographic hashing remain future work; the current checksum is a deterministic local integrity marker for the dependency manifest.
+The lockfile is deterministic and records each resolved package, exact version, source path and checksum. Remote registry resolution is now available through a transport-neutral filesystem registry fixture. A registry uses the layout `REGISTRY/<package>/<version>/snp.toml`; set `SNP_REGISTRY` to its root and use `snp lock` or `snp package-check`.
+
+Registry dependencies use this form:
+
+```toml
+[dependencies]
+app_core = { registry = "default", version = "^1.0.0" }
+```
+
+The resolver walks registry dependencies recursively, selects the highest available version satisfying each constraint, records transitive packages in `snp.lock`, and reports missing versions, dependency cycles, malformed metadata, and incompatible constraints for the same package name. Registry lock entries include a manifest checksum and are validated by `package-check`. HTTP index access, archive downloads, content-addressed caching, cryptographic hashing, and multiple simultaneously selected versions remain follow-up registry work; the current checksum is a deterministic manifest-integrity marker.

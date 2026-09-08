@@ -28,7 +28,8 @@ pub fn run() {
         let path = std::path::Path::new(&manifest_path);
         match crate::package::Manifest::load(path).and_then(|manifest| {
             let root = path.parent().unwrap_or(std::path::Path::new("."));
-            let lock = crate::package::generate_lock(root, &manifest)?;
+            let registry = std::env::var_os("SNP_REGISTRY").map(crate::package::Registry::open);
+            let lock = crate::package::generate_lock_with_registry(root, &manifest, registry.as_ref())?;
             crate::package::write_lock(root.join("snp.lock"), &lock)?;
             Ok(lock.packages.len())
         }) {
@@ -42,9 +43,17 @@ pub fn run() {
         let path = std::path::Path::new(&manifest_path);
         match crate::package::Manifest::load(path).and_then(|manifest| {
             let root = path.parent().unwrap_or(std::path::Path::new("."));
-            let deps = crate::package::resolve_local(root, &manifest)?;
+            let deps = if manifest.dependencies.values().any(|dependency| dependency.source.starts_with("registry:")) {
+                let registry_root = std::env::var_os("SNP_REGISTRY").ok_or("registry dependencies require SNP_REGISTRY")?;
+                let registry = crate::package::Registry::open(registry_root);
+                crate::package::resolve_registry_graph(&registry, &manifest)?.packages.into_values().map(|package| std::path::PathBuf::from(package.source)).collect()
+            } else { crate::package::resolve_local(root, &manifest)? };
             let lock_path = root.join("snp.lock");
-            if lock_path.is_file() { let lock = crate::package::load_lock(&lock_path)?; crate::package::validate_lock(root, &manifest, &lock)?; }
+            if lock_path.is_file() {
+                let lock = crate::package::load_lock(&lock_path)?;
+                let registry = std::env::var_os("SNP_REGISTRY").map(crate::package::Registry::open);
+                crate::package::validate_lock_with_registry(root, &manifest, &lock, registry.as_ref())?;
+            }
             let entry = root.join(&manifest.entry);
             let source = fs::read_to_string(&entry).map_err(|e| format!("cannot read package entry {}: {e}", entry.display()))?;
             let program = crate::parser::parse_program(&source)?;
