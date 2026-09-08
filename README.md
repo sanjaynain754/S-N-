@@ -85,3 +85,16 @@ entry = "src/main.snp"
 [dependencies]
 util = "../util"
 ```
+
+## Semantic versions and lockfiles
+
+Package dependencies may use an inline table with a local path and a semantic-version constraint:
+
+```toml
+[dependencies]
+util = { path = "../util", version = "^0.1.0" }
+```
+
+S+N++ currently supports exact versions such as `0.1.2`, caret ranges such as `^0.1.0`, tilde ranges such as `~0.1.2`, lower bounds such as `>=0.1.0`, and `*`. Run `snp lock path/to/snp.toml` to resolve local dependencies and generate `snp.lock`. `snp package-check path/to/snp.toml` validates the lockfile when it exists, including the version constraint, dependency path and manifest checksum.
+
+The lockfile is deterministic and records each resolved package, exact version, source path and checksum. Remote registry downloads, transitive dependency solving and cryptographic hashing remain future work; the current checksum is a deterministic local integrity marker for the dependency manifest.

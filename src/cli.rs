@@ -7,7 +7,7 @@ use std::io::{self, Write};
 pub fn run() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
-        eprintln!("S+N++ — usage: snp init <dir> [name] | snp package-check [snp.toml] | snp run <file.snp> | snp check <file.snp> | snp build <file.snp> | snp repl");
+        eprintln!("S+N++ — usage: snp init <dir> [name] | snp package-check [snp.toml] | snp lock [snp.toml] | snp run <file.snp> | snp check <file.snp> | snp build <file.snp> | snp repl");
         return;
     }
     if args[1] == "repl" {
@@ -23,12 +23,28 @@ pub fn run() {
         }
         return;
     }
+    if args[1] == "lock" {
+        let manifest_path = args.get(2).cloned().unwrap_or_else(|| "snp.toml".into());
+        let path = std::path::Path::new(&manifest_path);
+        match crate::package::Manifest::load(path).and_then(|manifest| {
+            let root = path.parent().unwrap_or(std::path::Path::new("."));
+            let lock = crate::package::generate_lock(root, &manifest)?;
+            crate::package::write_lock(root.join("snp.lock"), &lock)?;
+            Ok(lock.packages.len())
+        }) {
+            Ok(count) => println!("locked {count} local dependenc{} into snp.lock", if count == 1 { "y" } else { "ies" }),
+            Err(error) => eprintln!("error: {error}"),
+        }
+        return;
+    }
     if args[1] == "package-check" {
         let manifest_path = args.get(2).cloned().unwrap_or_else(|| "snp.toml".into());
         let path = std::path::Path::new(&manifest_path);
         match crate::package::Manifest::load(path).and_then(|manifest| {
             let root = path.parent().unwrap_or(std::path::Path::new("."));
             let deps = crate::package::resolve_local(root, &manifest)?;
+            let lock_path = root.join("snp.lock");
+            if lock_path.is_file() { let lock = crate::package::load_lock(&lock_path)?; crate::package::validate_lock(root, &manifest, &lock)?; }
             let entry = root.join(&manifest.entry);
             let source = fs::read_to_string(&entry).map_err(|e| format!("cannot read package entry {}: {e}", entry.display()))?;
             let program = crate::parser::parse_program(&source)?;
@@ -60,7 +76,7 @@ pub fn run() {
             Ok(_) => {},
             Err(error) => eprintln!("{}", diagnostic(&source, &error)),
         },
-        command => eprintln!("unknown command `{command}`; use init, package-check, run, check, build or repl"),
+        command => eprintln!("unknown command `{command}`; use init, package-check, lock, run, check, build or repl"),
     }
 }
 

@@ -112,3 +112,9 @@ Collections use an immutable-style list surface in this milestone. `list(value..
 A project manifest is stored as `snp.toml`. The supported foundation format has a `[package]` section with `name`, `version`, and optional `entry` (default `src/main.snp`), plus a `[dependencies]` section mapping package names to local paths. `snp init <directory> [name]` creates a starter project, and `snp package-check [snp.toml]` validates the manifest, resolves local dependency manifests, checks the entry source, and validates import namespaces.
 
 Imports beginning with `std.` are checked against the built-in standard-library registry. Other import roots must match a declared dependency, so a dependency named `util` can provide `util.math`. This milestone does not yet download packages or solve semver ranges; registry access, lockfiles, checksums, and reproducible dependency graphs remain future work.
+
+## Semantic versions and lockfiles
+
+Package versions use `MAJOR.MINOR.PATCH`. Dependency declarations may use an exact version (`0.1.2`), caret constraint (`^0.1.0`), tilde constraint (`~0.1.2`), lower-bound constraint (`>=0.1.0`), or wildcard (`*`). Inline dependency tables use `path` and `version`, for example `util = { path = "../util", version = "^0.1.0" }`.
+
+`snp lock snp.toml` resolves each local dependency and writes `snp.lock`. Each locked package records its exact version, source path and a deterministic checksum of its manifest. `snp package-check snp.toml` validates that every locked package still exists, satisfies its declared constraint and has an unchanged checksum. A lockfile is therefore a reproducibility and local-integrity mechanism; remote registries and transitive semver solving are not yet part of this milestone.
