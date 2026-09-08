@@ -7,11 +7,37 @@ use std::io::{self, Write};
 pub fn run() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
-        eprintln!("S+N++ — usage: snp run <file.snp> | snp check <file.snp> | snp build <file.snp> | snp repl");
+        eprintln!("S+N++ — usage: snp init <dir> [name] | snp package-check [snp.toml] | snp run <file.snp> | snp check <file.snp> | snp build <file.snp> | snp repl");
         return;
     }
     if args[1] == "repl" {
         repl();
+        return;
+    }
+    if args[1] == "init" {
+        let root = args.get(2).cloned().unwrap_or_else(|| ".".into());
+        let name = args.get(3).cloned().unwrap_or_else(|| std::path::Path::new(&root).file_name().and_then(|x| x.to_str()).unwrap_or("splusnpp-app").into());
+        match crate::package::init_project(&root, &name) {
+            Ok(()) => println!("initialized package `{name}` at {root}"),
+            Err(error) => eprintln!("error: {error}"),
+        }
+        return;
+    }
+    if args[1] == "package-check" {
+        let manifest_path = args.get(2).cloned().unwrap_or_else(|| "snp.toml".into());
+        let path = std::path::Path::new(&manifest_path);
+        match crate::package::Manifest::load(path).and_then(|manifest| {
+            let root = path.parent().unwrap_or(std::path::Path::new("."));
+            let deps = crate::package::resolve_local(root, &manifest)?;
+            let entry = root.join(&manifest.entry);
+            let source = fs::read_to_string(&entry).map_err(|e| format!("cannot read package entry {}: {e}", entry.display()))?;
+            let program = crate::parser::parse_program(&source)?;
+            crate::package::validate_imports(&program.imports, &manifest)?;
+            Ok((manifest, deps))
+        }) {
+            Ok((manifest, deps)) => println!("ok: package `{}` v{} with {} local dependenc{}", manifest.name, manifest.version, deps.len(), if deps.len() == 1 { "y" } else { "ies" }),
+            Err(error) => eprintln!("error: {error}"),
+        }
         return;
     }
     if args.len() < 3 { eprintln!("missing source file"); return; }
@@ -34,7 +60,7 @@ pub fn run() {
             Ok(_) => {},
             Err(error) => eprintln!("{}", diagnostic(&source, &error)),
         },
-        command => eprintln!("unknown command `{command}`; use run, check, build or repl"),
+        command => eprintln!("unknown command `{command}`; use init, package-check, run, check, build or repl"),
     }
 }
 

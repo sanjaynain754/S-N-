@@ -106,3 +106,9 @@ Collections use an immutable-style list surface in this milestone. `list(value..
 `std.collections` now supports immutable-style list updates and maps. `list_set(List, Int, value) -> List` returns a copy with the selected element replaced and rejects negative or out-of-bounds indices. `list_concat(List, List) -> List` returns a new list containing both inputs in order.
 
 `map(String, value...) -> Map` constructs a map from alternating string keys and values. `map_set(Map, String, value) -> Map` returns a copy with a key inserted or replaced. `map_get(Map, String)` returns the associated value and reports `map key not found` when absent. `map_has(Map, String) -> Bool` checks key presence. Map keys are currently strings, and all map updates preserve the original map.
+
+## Package manager foundation
+
+A project manifest is stored as `snp.toml`. The supported foundation format has a `[package]` section with `name`, `version`, and optional `entry` (default `src/main.snp`), plus a `[dependencies]` section mapping package names to local paths. `snp init <directory> [name]` creates a starter project, and `snp package-check [snp.toml]` validates the manifest, resolves local dependency manifests, checks the entry source, and validates import namespaces.
+
+Imports beginning with `std.` are checked against the built-in standard-library registry. Other import roots must match a declared dependency, so a dependency named `util` can provide `util.math`. This milestone does not yet download packages or solve semver ranges; registry access, lockfiles, checksums, and reproducible dependency graphs remain future work.

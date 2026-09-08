@@ -67,3 +67,21 @@ S+N++ source
 The crate is organized as a testable library plus a thin binary entrypoint. Source files may begin with imports such as `import std.io;` and `import std.concurrency;`. The resolver currently recognizes `std.io`, `std.string`, `std.collections`, and `std.concurrency`; this registry is the contract that the future package manager will extend. `std.string` provides `str_len`, `str_contains`, `str_upper`, `str_lower`, `str_trim`, and `str_concat`. `std.collections` provides immutable-style `list`, `list_push`, `list_len`, `list_get`, `list_set`, `list_concat`, `map`, `map_set`, `map_get`, and `map_has` operations. Lists and maps are returned as new values when updated, so the original collection remains available under the ownership model. The AST, lexer, parser, type checker, runtime and CLI now have dedicated module implementations. `snp build file.snp` validates and emits a `.snpbc` bytecode artifact with the `SNPBC1` format marker; `snp check` performs frontend validation, while `snp run` executes through the bytecode VM. Future production milestones include loading serialized artifacts directly, explicit closure capture, richer diagnostics, standard library modules and an LLVM/native backend.
 
 विस्तृत language rules और milestone details के लिए [SPEC.md](SPEC.md) देखें।
+
+## Packages
+
+S+N++ projects may contain a `snp.toml` manifest. Initialize one with `snp init <directory> [name]`; the command creates `src/main.snp` and a package manifest. The current manifest format uses a `[package]` section with `name`, `version`, and `entry`, plus a `[dependencies]` section whose values are local package paths.
+
+Use `snp package-check [snp.toml]` to validate the manifest, resolve every local dependency, read the package entry file, and verify that non-standard imports belong to declared dependency namespaces. Standard modules continue to use `std.*`, while a dependency named `util` may expose imports such as `util.math`. This is intentionally a local-only foundation; registry downloads, lockfiles, cryptographic checksums, and semver solving are future milestones.
+
+Example manifest:
+
+```toml
+[package]
+name = "demo"
+version = "0.1.0"
+entry = "src/main.snp"
+
+[dependencies]
+util = "../util"
+```
