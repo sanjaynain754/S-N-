@@ -8,6 +8,7 @@ pub mod parser;
 pub mod runtime;
 pub mod stdlib;
 pub mod package;
+pub mod registry;
 pub mod typecheck;
 use std::collections::HashMap as Map;
 

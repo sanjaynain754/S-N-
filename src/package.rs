@@ -16,7 +16,7 @@ impl Version {
 }
 impl std::fmt::Display for Version { fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { write!(f, "{}.{}.{}", self.major, self.minor, self.patch) } }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Constraint { Any, Exact(Version), Caret(Version), Tilde(Version), Gte(Version) }
 impl Constraint {
     pub fn parse(text: &str) -> Result<Self, String> {
